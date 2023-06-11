@@ -1,0 +1,31 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "The desired account is already configured"
+        },
+        "error": {
+            "auth": "Invalid login"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "email": "Email",
+                    "password": "Password"
+                },
+                "description": "Enter the email address and password associated with your account.",
+                "title": "Login to Hatch account"
+            }
+        }
+    },
+    "entity": {
+        "light": {
+            "all": {
+                "state_attributes": {
+                    "effect": {
+                        "rainbow": "Rainbow"
+                    }
+                }
+            }
+        }
+    }
+}

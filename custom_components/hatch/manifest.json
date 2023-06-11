@@ -1,0 +1,17 @@
+{
+  "domain": "hatch",
+  "name": "Hatch",
+  "after_dependencies": [],
+  "codeowners": ["@schmittx"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/schmittx/hatch",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/schmittx/hatch/issues",
+  "quality_scale": "gold",
+  "requirements": [
+    "aiohttp>=3.8.1",
+    "distro>=1.0.0"
+  ],
+  "version": "1.0.0"
+}
