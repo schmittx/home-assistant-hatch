@@ -1,7 +1,3 @@
-# home-assistant-hatch
-Hatch integration for Home Assistant
-
-
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 # Hatch Home Assistant Integration
 Custom component to handle [Hatch](https://www.hatch.co) sleep devices in [Home Assistant](https://home-assistant.io).
