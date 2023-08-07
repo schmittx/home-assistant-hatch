@@ -22,7 +22,6 @@ from .const import DOMAIN, DEVICES, ENTITIES, MEDIA_IMAGE_DIRECTORY
 class HatchMediaPlayerEntityDescription(MediaPlayerEntityDescription):
     """Class to describe a Hatch media player entity."""
 
-
 MEDIA_PLAYER_DESCRIPTIONS: list[HatchMediaPlayerEntityDescription] = [
     HatchMediaPlayerEntityDescription(
         key="sound_machine",

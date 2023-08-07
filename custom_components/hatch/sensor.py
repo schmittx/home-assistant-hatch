@@ -23,7 +23,6 @@ from .const import DOMAIN, DEVICES, ENTITIES
 class HatchSensorEntityDescription(SensorEntityDescription):
     """Class to describe a Hatch sensor entity."""
 
-
 SENSOR_DESCRIPTIONS: list[HatchSensorEntityDescription] = [
     HatchSensorEntityDescription(
         key="battery_level",

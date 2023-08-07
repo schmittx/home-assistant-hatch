@@ -22,7 +22,6 @@ from .const import DOMAIN, DEVICES, ENTITIES
 class HatchBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Class to describe a Hatch binary sensor entity."""
 
-
 BINARY_SENSOR_DESCRIPTIONS: list[HatchBinarySensorEntityDescription] = [
     HatchBinarySensorEntityDescription(
         key="is_light_on",

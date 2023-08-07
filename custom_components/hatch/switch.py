@@ -1,7 +1,7 @@
 """Support for Hatch switch entities."""
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 import logging
 from typing import Any
@@ -21,12 +21,17 @@ from .const import DOMAIN, DEVICES, ENTITIES
 class HatchSwitchEntityDescription(SwitchEntityDescription):
     """Class to describe a Hatch switch entity."""
 
+    extra_attrs: dict[str, Callable] | None = None
 
 SWITCH_DESCRIPTIONS: list[HatchSwitchEntityDescription] = [
     HatchSwitchEntityDescription(
         key="is_device_on",
         name="Power",
         entity_category=None,
+        extra_attrs={
+            "active_preset_index": lambda device: getattr(device, "active_preset_index"),
+            "active_program_name": lambda device: getattr(device, "active_program_name"),
+        },
     ),
     HatchSwitchEntityDescription(
         key="clock_enabled",
@@ -146,8 +151,8 @@ class HatchSwitchEntity(HatchEntity, SwitchEntity):
         is lowercase snake_case.
         """
         attrs = {}
-        if self.device.active_preset_index:
-            attrs["active_preset_index"] = self.device.active_preset_index
-        if self.device.active_program_name:
-            attrs["active_program_name"] = self.device.active_program_name
+        if self.entity_description.extra_attrs and self.is_on:
+            for key, func in self.entity_description.extra_attrs.items():
+                if value := func(self.device):
+                    attrs[key] = value
         return attrs

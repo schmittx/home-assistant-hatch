@@ -22,7 +22,9 @@
             "all": {
                 "state_attributes": {
                     "effect": {
-                        "rainbow": "Rainbow"
+                        "state": {
+                            "rainbow": "Rainbow"
+                        }
                     }
                 }
             }

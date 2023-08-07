@@ -1,4 +1,4 @@
-"""Support for Hatch button entities."""
+"""Support for Hatch scene entities."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -6,7 +6,6 @@ from dataclasses import dataclass
 import logging
 from typing import Any
 
-from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS_PCT,
     ATTR_COLOR_MODE,
@@ -18,8 +17,10 @@ from homeassistant.components.media_player import (
     ATTR_MEDIA_VOLUME_LEVEL,
     ATTR_SOUND_MODE,
 )
+from homeassistant.components.scene import Scene
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory, EntityDescription
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import HatchEntity
@@ -28,9 +29,8 @@ from .api.rest_plus import Preset as HatchPreset
 from .const import DOMAIN, DEVICES, EFFECT_RAINBOW, ENTITIES
 
 @dataclass
-class HatchButtonEntityDescription(ButtonEntityDescription):
-    """Class to describe a Hatch button entity."""
-
+class HatchSceneEntityDescription(EntityDescription):
+    """Class to describe a Hatch scene entity."""
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,24 +40,25 @@ async def async_setup_entry(
         config_entry: ConfigEntry,
         async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up a Hatch button entity based on a config entry."""
+    """Set up a Hatch scene entity based on a config entry."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     devices = entry[DEVICES]
-    entities: list[HatchButtonEntity] = []
+    entities: list[HatchSceneEntity] = []
 
     for device in devices:
         if hasattr(device, "presets"):
             for preset in device.presets:
                 if preset.is_favorite:
                     _LOGGER.debug(
-                        f"[{device.info.name}] Found preset button entity: {preset.index}",
+                        f"[{device.info.name}] Found preset scene entity: {preset.index}",
                     )
                     entities.append(
-                        HatchButtonEntity(
+                        HatchSceneEntity(
                             device=device,
-                            entity_description=HatchButtonEntityDescription(
+                            entity_description=HatchSceneEntityDescription(
                                 key=None,
                                 name=None,
+                                entity_category=EntityCategory.CONFIG,
                             ),
                             preset=preset,
                         )
@@ -67,15 +68,15 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class HatchButtonEntity(HatchEntity, ButtonEntity):
-    """Representation of a Hatch button entity."""
+class HatchSceneEntity(HatchEntity, Scene):
+    """Representation of a Hatch scene entity."""
 
-    entity_description: HatchButtonEntityDescription
+    entity_description: HatchSceneEntityDescription
 
     def __init__(
         self,
         device: HatchDevice,
-        entity_description: HatchButtonEntityDescription=None,
+        entity_description: HatchSceneEntityDescription=None,
         preset: HatchPreset=None,
     ) -> None:
         """Initialize device."""
@@ -92,8 +93,8 @@ class HatchButtonEntity(HatchEntity, ButtonEntity):
         """Return a unique ID."""
         return f"{super().unique_id}-preset-{self.preset.index}"
 
-    def press(self) -> None:
-        """Press the button."""
+    def activate(self, **kwargs: Any) -> None:
+        """Activate scene. Try to get entities into requested state."""
         self.device.set_preset(self.preset)
 
     @property

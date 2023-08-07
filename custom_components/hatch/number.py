@@ -18,7 +18,6 @@ from .const import DOMAIN, DEVICES, ENTITIES
 class HatchNumberEntityDescription(NumberEntityDescription):
     """Class to describe a Hatch number."""
 
-
 NUMBER_DESCRIPTIONS: list[HatchNumberEntityDescription] = [
     HatchNumberEntityDescription(
         key="clock_brightness",

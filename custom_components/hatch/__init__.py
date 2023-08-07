@@ -31,10 +31,10 @@ from .const import (
 )
 
 PLATFORMS = [
-    Platform.BUTTON,
     Platform.LIGHT,
     Platform.MEDIA_PLAYER,
     Platform.NUMBER,
+    Platform.SCENE,
     Platform.SENSOR,
     Platform.SWITCH,
 ]

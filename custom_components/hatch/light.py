@@ -29,7 +29,6 @@ class HatchLightEntityDescription(LightEntityDescription):
 
     translation_key: str | None = "all"
 
-
 LIGHT_DESCRIPTIONS: list[HatchLightEntityDescription] = [
     HatchLightEntityDescription(
         key="nightlight",
