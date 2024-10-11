@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import aiofiles
 
 from homeassistant.components.media_player import (
     MediaPlayerDeviceClass,
@@ -135,6 +136,7 @@ class HatchMediaPlayerEntity(HatchEntity, MediaPlayerEntity):
         """Fetch media image of current playing image."""
         if self.media_image_hash:
             path =f"{MEDIA_IMAGE_DIRECTORY}/{self.media_image_hash}.png"
-            artwork = open(path, "rb").read()
+            async with aiofiles.open(path, "rb") as file:
+                artwork = await file.read()
             return artwork, "image/png"
         return None, None

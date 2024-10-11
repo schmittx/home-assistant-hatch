@@ -12,7 +12,10 @@ from awsiot.iotshadow import (
     ShadowState,
 )
 
-from .const import PRODUCT_MODEL_MAP
+from .const import (
+    DEFAULT_SAVE_ENABLED,
+    PRODUCT_MODEL_MAP,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,11 +39,16 @@ class Info:
 
 class Device:
 
-    def __init__(self, info: dict, shadow_client: IotShadowClient, save_responses: bool=False):
+    def __init__(
+            self,
+            info: dict,
+            shadow_client: IotShadowClient,
+            save_response_enabled: bool = DEFAULT_SAVE_ENABLED,
+    ):
         self.document_version = -1
         self.info = Info(info)
         self.previous_state = None
-        self.save_responses = save_responses
+        self.save_response_enabled = save_response_enabled
         self.shadow_client = shadow_client
         self.state = {}
 

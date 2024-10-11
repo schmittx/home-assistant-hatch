@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import aiofiles
 from aiohttp import ClientError
 import logging
 import json
 import os
+from typing import Any
 
 from .const import (
+    DEFAULT_SAVE_ENABLED,
     DEFAULT_SAVE_LOCATION,
     MAX_IOT_VALUE,
     SENSITIVE_FIELD_NAMES,
@@ -104,14 +107,34 @@ def color_to_api(value: int):
     return int((value / 255) * MAX_IOT_VALUE)
 
 
-def save_response(response, name="response"):
-    if response:
+def save_response(
+        response: dict[str, Any],
+        name: str = "response",
+        save_response_enabled: bool = DEFAULT_SAVE_ENABLED,
+) -> None:
+    if save_response_enabled and response:
         if not os.path.isdir(DEFAULT_SAVE_LOCATION):
             os.mkdir(DEFAULT_SAVE_LOCATION)
         name = name.replace("/", "_").replace(".", "_").replace("’", "").replace(" ", "_").lower()
-        with open(f"{DEFAULT_SAVE_LOCATION}/{name}.json", "w") as file:
-            json.dump(response, file, default=lambda o: "not-serializable", indent=4, sort_keys=True)
-        file.close()
+        path = f"{DEFAULT_SAVE_LOCATION}/{name}.json"
+        _LOGGER.debug(f"Saving response to {path}")
+        with open(path, "w") as file:
+            file.write(json.dumps(response, default=lambda o: "not-serializable", indent=4, sort_keys=True))
+
+
+async def async_save_response(
+        response: dict[str, Any],
+        name: str = "response",
+        save_response_enabled: bool = DEFAULT_SAVE_ENABLED,
+) -> None:
+    if save_response_enabled and response:
+        if not os.path.isdir(DEFAULT_SAVE_LOCATION):
+            os.mkdir(DEFAULT_SAVE_LOCATION)
+        name = name.replace("/", "_").replace(".", "_").replace("’", "").replace(" ", "_").lower()
+        path = f"{DEFAULT_SAVE_LOCATION}/{name}.json"
+        _LOGGER.debug(f"Saving response to {path}")
+        async with aiofiles.open(path, "w") as file:
+            await file.write(json.dumps(response, default=lambda o: "not-serializable", indent=4, sort_keys=True))
 
 
 class BaseError(ClientError):

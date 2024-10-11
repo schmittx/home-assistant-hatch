@@ -67,6 +67,6 @@ class HatchNumberEntity(HatchEntity, NumberEntity):
         return getattr(self.device, self.entity_description.key)
 
     @final
-    def set_value(self, value: float) -> None:
-        """Set new value."""
+    def set_native_value(self, value: float) -> None:
+        """Update the current value."""
         setattr(self.device, self.entity_description.key, value)

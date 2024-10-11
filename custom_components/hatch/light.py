@@ -27,8 +27,6 @@ from .const import DOMAIN, DEVICES, EFFECT_RAINBOW, ENTITIES
 class HatchLightEntityDescription(LightEntityDescription):
     """Class to describe a Hatch light entity."""
 
-    translation_key: str | None = "all"
-
 LIGHT_DESCRIPTIONS: list[HatchLightEntityDescription] = [
     HatchLightEntityDescription(
         key="nightlight",

@@ -14,7 +14,10 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import HatchEntity
 from .api.device import Device as HatchDevice
-from .api.rest_plus import Preset as HatchPreset
+from .api.rest_plus import (
+    Preset as HatchPreset,
+    Program as HatchProgram,
+)
 from .const import DOMAIN, DEVICES, ENTITIES
 
 @dataclass
@@ -86,6 +89,24 @@ async def async_setup_entry(
                         )
                     )
 
+        if hasattr(device, "programs"):
+            for program in device.programs:
+                if program.is_favorite:
+                    _LOGGER.debug(
+                        f"[{device.info.name}] Found program switch entity: {program.index}",
+                    )
+                    entities.append(
+                        HatchSwitchEntity(
+                            device=device,
+                            entity_description=HatchSwitchEntityDescription(
+                                key=None,
+                                name=None,
+                                entity_category=EntityCategory.CONFIG,
+                            ),
+                            program=program,
+                        )
+                    )
+
     entry[ENTITIES].extend(entities)
 
     async_add_entities(entities)
@@ -99,12 +120,14 @@ class HatchSwitchEntity(HatchEntity, SwitchEntity):
     def __init__(
         self,
         device: HatchDevice,
-        entity_description: HatchSwitchEntityDescription=None,
-        preset: HatchPreset=None,
+        entity_description: HatchSwitchEntityDescription = None,
+        preset: HatchPreset = None,
+        program: HatchProgram = None,
     ) -> None:
         """Initialize device."""
         super().__init__(device, entity_description)
         self.preset = preset
+        self.program = program
 
     @property
     def name(self) -> str:
@@ -112,6 +135,8 @@ class HatchSwitchEntity(HatchEntity, SwitchEntity):
         name = super().name
         if self.preset:
             return f"{name} Preset {self.preset.index} Enabled"
+        elif self.program:
+            return f"{name} {self.program.name } Program Enabled"
         return name
 
     @property
@@ -120,6 +145,8 @@ class HatchSwitchEntity(HatchEntity, SwitchEntity):
         unique_id = super().unique_id
         if self.preset:
             return f"{unique_id}-preset-{self.preset.index}-enabled"
+        elif self.program:
+            return f"{unique_id}-program-{self.program.index}-enabled"
         return unique_id
 
     @property
@@ -127,12 +154,16 @@ class HatchSwitchEntity(HatchEntity, SwitchEntity):
         """Return True if entity is on."""
         if self.preset:
             return getattr(self.preset, "is_enabled")
+        elif self.program:
+            return getattr(self.program, "is_enabled")
         return getattr(self.device, self.entity_description.key)
 
     def turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
         if self.preset:
             self.device.enable_preset(self.preset, True)
+        elif self.program:
+            self.device.enable_program(self.program, True)
         else:
             setattr(self.device, self.entity_description.key, True)
 
@@ -140,6 +171,8 @@ class HatchSwitchEntity(HatchEntity, SwitchEntity):
         """Turn the entity off."""
         if self.preset:
             self.device.enable_preset(self.preset, False)
+        elif self.program:
+            self.device.enable_program(self.program, False)
         else:
             setattr(self.device, self.entity_description.key, False)
 

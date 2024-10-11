@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 import datetime
-import distro
 import logging
-import os
-from subprocess import PIPE, Popen
+from subprocess import PIPE
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, CONF_EMAIL, CONF_PASSWORD
@@ -14,14 +12,8 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import Entity, EntityDescription
 from homeassistant.helpers.event import async_track_point_in_utc_time
-from homeassistant.requirements import RequirementsNotFound
-from homeassistant.util.package import (
-    install_package,
-    is_docker_env,
-    is_installed,
-    is_virtual_env,
-)
 
+from .api.const import DEFAULT_SAVE_ENABLED
 from .const import (
     DEVICES,
     DOMAIN,
@@ -43,59 +35,7 @@ PLATFORMS = [
 _LOGGER = logging.getLogger(__name__)
 
 
-def _install_distro_packages(args, errMsg="Unable to install package dependencies"):
-    if os.geteuid() != 0:
-        args.insert(0, "sudo")
-    with Popen(
-        args, stdin=PIPE, stdout=PIPE, stderr=PIPE, env=os.environ.copy()
-    ) as process:
-        _, stderr = process.communicate()
-        if process.returncode != 0:
-            _LOGGER.error(errMsg)
-            try:
-                _LOGGER.error(stderr.decode("utf-8").lstrip().strip())
-            except Exception as error:
-                _LOGGER.error(error)
-
-
-def _install_required_packages():
-    if is_docker_env() and not is_virtual_env():
-        distro_id = distro.id()
-        if distro_id == "alpine":
-            _install_distro_packages(
-                ["apk", "add", "gcc", "g++", "cmake", "make"],
-            )
-        elif distro_id == "debian" or distro_id == "ubuntu":
-            _install_distro_packages(
-                ["apt-get", "update"],
-                "Failed to update available packages",
-            )
-            _install_distro_packages(
-                ["apt-get", "install", "build-essential", "cmake", "-y"],
-            )
-        else:
-            _LOGGER.warning(
-                """Unsupported distro: %s. If you run into issues, make sure you have
-                gcc, g++, cmake, and make installed in your Home Assistant container.""",
-                distro_id,
-            )
-
-
-def _setup_requirements():
-    _LOGGER.debug(f"Setting up requirements")
-    _install_required_packages()
-    custom_required_packages = ["awsiotsdk"]
-    links = "https://qqaatw.github.io/aws-crt-python-musllinux/"
-    for pkg in custom_required_packages:
-#        if not is_installed(pkg) and not install_package(pkg, find_links=links):
-        if not is_installed(pkg) and not install_package(pkg):
-            raise RequirementsNotFound(DOMAIN, [pkg])
-        else:
-            _LOGGER.debug("All packages installed successfully")
-
-
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
-    _setup_requirements()
     data = {}
     email = config_entry.data[CONF_EMAIL]
     password = config_entry.data[CONF_PASSWORD]
@@ -128,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             client_session=client_session,
             on_connection_interrupted=disconnect,
             on_connection_resumed=resumed,
-            save_responses=True,
+            save_response_enabled=DEFAULT_SAVE_ENABLED,
         )
         _LOGGER.debug(
             f"[{config_entry.title}] Credentials expire at: {datetime.datetime.fromtimestamp(expiration_time)}"
@@ -196,9 +136,9 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 class HatchEntity(Entity):
     """Representation of a Hatch entity."""
 
-    _setup_requirements()
-
     from .api.device import Device as HatchDevice
+
+    translation_key: str | None = "all"
 
     def __init__(
         self,
@@ -223,7 +163,7 @@ class HatchEntity(Entity):
         if self.platform is None:
             return
         _LOGGER.debug(f"[{self.entity_id}] Updating Home Assistant state")
-        self.async_write_ha_state()
+        self.schedule_update_ha_state()
 
     @property
     def should_poll(self) -> bool:

@@ -32,6 +32,7 @@ REST_PLUS_TRACKS = {
     14: "Rock-a-bye Baby",
 }
 
+DEFAULT_SAVE_ENABLED = False
 DEFAULT_SAVE_LOCATION = f"/config/custom_components/hatch/api/responses"
 
 CLOCK_FORMAT_OFF_12H = 0
@@ -48,6 +49,8 @@ CLOCK_FORMAT_24H = [
     CLOCK_FORMAT_OFF_24H,
     CLOCK_FORMAT_ON_24H,
 ]
+
+NO_ACTIVE_PROGRAM = "no_active_program"
 
 PRODUCT_REST_MINI = "restMini"
 PRODUCT_REST_PLUS = "restPlus"

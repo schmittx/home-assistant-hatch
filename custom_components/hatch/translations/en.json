@@ -28,6 +28,13 @@
                     }
                 }
             }
+        },
+        "sensor": {
+            "all": {
+                "state": {
+                    "none": "None"
+                }
+            }
         }
     }
 }

@@ -10,7 +10,6 @@ from homeassistant.const import (
 )
 import homeassistant.helpers.config_validation as cv
 
-from . import _setup_requirements
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,7 +22,6 @@ class HatchConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         """Initialize."""
-        _setup_requirements()
         self.api = None
         self.user_input = {}
 
@@ -41,7 +39,7 @@ class HatchConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 token = await self.api.login(email=user_input[CONF_EMAIL], password=user_input[CONF_PASSWORD])
                 response = await self.api.member(auth_token=token)
 
-                await self.async_set_unique_id(response["member"]["id"])
+                await self.async_set_unique_id(str(response["member"]["id"]))
                 self._abort_if_unique_id_configured()
 
             except ConfigEntryAuthFailed:

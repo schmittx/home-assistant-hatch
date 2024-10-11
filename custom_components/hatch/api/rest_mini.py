@@ -4,7 +4,11 @@ import logging
 
 from .const import REST_MINI_TRACKS
 from .device import Device
-from .util import api_to_pct, pct_to_api, save_response
+from .util import (
+    api_to_pct,
+    pct_to_api,
+    save_response,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,8 +37,7 @@ class RestMini(Device):
         _LOGGER.debug(f"[{self.info.name}] Updating API state: {state}")
         self.previous_state = State(state=self.state)
         self.state = self._merge_state(current=self.state, update=state)
-        if self.save_responses:
-            save_response(self.state, self.info.name)
+        save_response(self.state, self.info.name, self.save_response_enabled)
         self.publish_updates()
 
     @property

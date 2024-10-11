@@ -8,6 +8,7 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
+    SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE
@@ -25,9 +26,15 @@ class HatchSensorEntityDescription(SensorEntityDescription):
 
 SENSOR_DESCRIPTIONS: list[HatchSensorEntityDescription] = [
     HatchSensorEntityDescription(
+        key="active_program_name",
+        name="Active Program",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    HatchSensorEntityDescription(
         key="battery_level",
         name="Battery Level",
         device_class=SensorDeviceClass.BATTERY,
+        state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
     ),

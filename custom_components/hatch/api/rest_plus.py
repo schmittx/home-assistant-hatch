@@ -9,6 +9,7 @@ from .const import (
     CLOCK_FORMAT_OFF_24H,
     CLOCK_FORMAT_ON_12H,
     CLOCK_FORMAT_ON_24H,
+    NO_ACTIVE_PROGRAM,
     REST_PLUS_TRACKS,
 )
 from .device import Device
@@ -94,8 +95,7 @@ class RestPlus(Device):
         _LOGGER.debug(f"[{self.info.name}] Updating API state: {state}")
         self.previous_state = State(state=self.state)
         self.state = self._merge_state(current=self.state, update=state)
-        if self.save_responses:
-            save_response(self.state, self.info.name)
+        save_response(self.state, self.info.name, self.save_response_enabled)
         self.publish_updates()
 
     @property
@@ -365,8 +365,20 @@ class RestPlus(Device):
 
     @property
     def active_program_name(self):
-        if self.active_preset_index is None:
-            return None
+        if not self.active_preset_index:
+            return "none"
         for program in self.programs:
             if self.active_program_index == program.index:
                 return program.name
+
+    def enable_program(self, program: Program, enabled: bool):
+        format = 192 if enabled else 128
+        self._update(
+            {
+                "programs": {
+                    str(program.index): {
+                        "f": format,
+                    }
+                }
+            }
+        )
