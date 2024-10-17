@@ -10,7 +10,7 @@ Custom component to handle [Hatch](https://www.hatch.co) sleep devices in [Home 
 - Rest+ (1st Gen)
 
 ## Install
-1. Ensure Home Assistant is updated to version 2021.4.0 or newer.
+1. Ensure Home Assistant is updated to version 2024.10.0 or newer.
 2. Use HACS and add as a [custom repo](https://hacs.xyz/docs/faq/custom_repositories); or download and manually move to the `custom_components` folder.
 3. Once the integration is installed follow the standard process to setup via UI and search for `Hatch`.
 4. Follow the prompts.

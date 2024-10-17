@@ -83,25 +83,25 @@ def request_with_logging_and_errors(func):
     return request_with_logging_wrapper
 
 
-def api_to_pct(value: int):
+def api_to_pct(value: int) -> int:
     if value is None:
         return None
     return int((value * 100) / MAX_IOT_VALUE)
 
 
-def pct_to_api(value: int):
+def pct_to_api(value: int) -> int:
     if value is None:
         return None
     return int((value / 100) * MAX_IOT_VALUE)
 
 
-def api_to_color(value: int):
+def api_to_color(value: int) -> int:
     if value is None:
         return None
     return int((value * 255) / MAX_IOT_VALUE)
 
 
-def color_to_api(value: int):
+def color_to_api(value: int) -> int:
     if value is None:
         return None
     return int((value / 255) * MAX_IOT_VALUE)

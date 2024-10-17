@@ -71,7 +71,7 @@ class Preset:
 
 class Program:
 
-    def __init__(self, index: int, state: dict):
+    def __init__(self, index: str, state: dict):
         self.index = int(index)
         self.audio = Audio(state.get("a", {}))
         self.color = Color(state.get("c", {}))
@@ -91,7 +91,7 @@ class State:
 
 class RestPlus(Device):
 
-    def _update_local_state(self, state):
+    def _update_local_state(self, state) -> None:
         _LOGGER.debug(f"[{self.info.name}] Updating API state: {state}")
         self.previous_state = State(state=self.state)
         self.state = self._merge_state(current=self.state, update=state)
@@ -111,7 +111,7 @@ class RestPlus(Device):
         )
 
     @property
-    def clock(self):
+    def clock(self) -> Clock:
         return Clock(self.state.get("clock", {}))
 
     def _set_clock(self, brightness: int = None, format: int = None) -> None:
@@ -152,7 +152,7 @@ class RestPlus(Device):
         return format
 
     @property
-    def clock_brightness(self):
+    def clock_brightness(self) -> int:
         return self.clock.brightness
 
     @clock_brightness.setter
@@ -160,7 +160,7 @@ class RestPlus(Device):
         self._set_clock(brightness=value)
 
     @property
-    def clock_enabled(self):
+    def clock_enabled(self) -> bool:
         return bool(self.clock.format in CLOCK_FORMAT_ON)
 
     @clock_enabled.setter
@@ -168,7 +168,7 @@ class RestPlus(Device):
         self._set_clock(format=self._get_clock_format(clock_enabled=value))
 
     @property
-    def clock_24hr_time(self):
+    def clock_24hr_time(self) -> bool:
         return bool(self.clock.format in CLOCK_FORMAT_24H)
 
     @clock_24hr_time.setter
@@ -176,11 +176,11 @@ class RestPlus(Device):
         self._set_clock(format=self._get_clock_format(clock_24hr_time=value))
 
     @property
-    def sound_machine(self):
+    def sound_machine(self) -> bool:
         return True
 
     @property
-    def audio(self):
+    def audio(self) -> Audio:
         return Audio(self.state.get("a", {}))
 
     @property
@@ -193,7 +193,7 @@ class RestPlus(Device):
             ]
         )
 
-    def set_audio(self, track: str = None, volume: int = None):
+    def set_audio(self, track: str = None, volume: int = None) -> None:
         data = {}
         if track is not None:
             data["t"] = list(REST_PLUS_TRACKS.keys())[list(REST_PLUS_TRACKS.values()).index(track)]
@@ -214,16 +214,16 @@ class RestPlus(Device):
         )
         _LOGGER.debug(f"[{self.info.name}] Set audio state: {data}")
 
-    def set_audio_volume(self, volume: int):
+    def set_audio_volume(self, volume: int) -> None:
         self.set_audio(volume=volume)
 
-    def set_audio_track(self, track: str):
+    def set_audio_track(self, track: str) -> None:
         self.set_audio(track=track)
 
-    def turn_on_audio(self):
+    def turn_on_audio(self) -> None:
         self.set_audio()
 
-    def turn_off_audio(self):
+    def turn_off_audio(self) -> None:
         self.set_audio_track("None")
 
     @property
@@ -231,15 +231,15 @@ class RestPlus(Device):
         return self.state.get("deviceInfo", {}).get("b")
 
     @property
-    def nightlight(self):
+    def nightlight(self) -> bool:
         return True
 
     @property
-    def color(self):
+    def color(self) -> Color:
         return Color(self.state.get("c", {}))
 
     @property
-    def is_light_on(self):
+    def is_light_on(self) -> bool:
         return all(
             [
                 bool(self.color.intensity),
@@ -310,15 +310,13 @@ class RestPlus(Device):
         return [Preset(index, state) for index, state in self.state.get("presets", {}).items()]
 
     @property
-    def active_preset_index(self):
+    def active_preset_index(self) -> int:
         return self.state.get("activePresetIndex")
     
-    def is_preset_active(self, index: int):
-        if self.active_preset_index:
-            return bool(self.active_preset_index == index)
-        return False
+    def is_preset_active(self, index: int) -> bool:
+        return bool(self.active_preset_index == index)
 
-    def enable_preset(self, preset: Preset, enabled: bool):
+    def enable_preset(self, preset: Preset, enabled: bool) -> None:
         format = 192 if enabled else 128
         self._update(
             {
@@ -330,7 +328,7 @@ class RestPlus(Device):
             }
         )
 
-    def set_preset(self, preset: Preset):
+    def set_preset(self, preset: Preset) -> None:
         self._update(
             {
                 "isPowered": True,
@@ -351,27 +349,24 @@ class RestPlus(Device):
         )
 
     @property
-    def programs(self):
+    def programs(self) -> list[Program]:
         return [Program(index, state) for index, state in self.state.get("programs", {}).items()]
 
     @property
-    def active_program_index(self):
+    def active_program_index(self) -> int:
         return self.state.get("activeProgramIndex")
 
-    def is_program_active(self, index: int):
-        if self.active_program_index:
-            return bool(self.active_program_index == index)
-        return False
+    def is_program_active(self, index: int) -> bool:
+        return bool(self.active_program_index == index)
 
     @property
-    def active_program_name(self):
-        if not self.active_preset_index:
-            return "none"
+    def active_program_name(self) -> str:
         for program in self.programs:
-            if self.active_program_index == program.index:
+            if self.is_program_active(program.index):
                 return program.name
+        return "none"
 
-    def enable_program(self, program: Program, enabled: bool):
+    def enable_program(self, program: Program, enabled: bool) -> None:
         format = 192 if enabled else 128
         self._update(
             {
