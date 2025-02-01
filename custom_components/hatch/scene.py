@@ -11,7 +11,7 @@ from homeassistant.components.light import (
     ATTR_COLOR_MODE,
     ATTR_EFFECT,
     ATTR_RGB_COLOR,
-    COLOR_MODE_WHITE,
+    ColorMode,
 )
 from homeassistant.components.media_player import (
     ATTR_MEDIA_VOLUME_LEVEL,
@@ -126,7 +126,7 @@ class HatchSceneEntity(HatchEntity, Scene):
         if self.preset.color.intensity is not None:
             attrs[ATTR_BRIGHTNESS_PCT] = int(self.preset.color.intensity * 100 / 255)
         if self.preset.color.white:
-            attrs[ATTR_COLOR_MODE] = COLOR_MODE_WHITE
+            attrs[ATTR_COLOR_MODE] = ColorMode.WHITE
         if self.preset.color.rainbow:
             attrs[ATTR_EFFECT] = EFFECT_RAINBOW
         return attrs
